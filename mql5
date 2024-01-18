@@ -1,0 +1,84 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                     Foxking EURUSD m15 |
+//|                                  Copyright © 2021, Forex Robot Easy Team |
+//|                                                https://www.forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input double LotSize = 0.01;               // Trading lot size
+input int StopLoss = 50;                   // Stop loss in pips
+input int TakeProfit = 100;                // Take profit in pips
+
+// Define global variables
+int ticket = 0;                            // Order ticket number
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Add initialization code here
+   
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Add deinitialization code here
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if the current bar is closed
+   if (iBars(NULL, PERIOD_M15) < 2)
+      return;
+   
+   // Calculate the signal
+   double signal = calculateSignal();
+   
+   // Check if there is an open order
+   if (ticket != 0)
+   {
+      // Check if the order is closed
+      if (OrderSelect(ticket, SELECT_BY_TICKET) && OrderCloseTime() > 0)
+      {
+         // Reset the order ticket
+         ticket = 0;
+      }
+      else
+      {
+         // Exit the function if the order is still open
+         return;
+      }
+   }
+   
+   // Check if the signal is buy
+   if (signal > 0)
+   {
+      // Open a buy order
+      ticket = OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, Bid - StopLoss * Point, Bid + TakeProfit * Point, NULL, 0, 0, Green);
+   }
+   // Check if the signal is sell
+   else if (signal < 0)
+   {
+      // Open a sell order
+      ticket = OrderSend(Symbol(), OP_SELL, LotSize, Bid, 3, Ask + StopLoss * Point, Ask - TakeProfit * Point, NULL, 0, 0, Red);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Calculate trading signal                                          |
+//+------------------------------------------------------------------+
+double calculateSignal()
+{
+   // Add your trading strategy here
+   
+   return 0; // Placeholder for the trading signal
+}
